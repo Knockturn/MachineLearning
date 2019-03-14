@@ -125,7 +125,7 @@ class Environment:
 def get_state_has_and_winner(env, i=0, j=0):
     results = []
     
-    for v in (0, env.x, env.0):
+    for v in (0, env.x, env.o):
         env.board[i,j] = v # if empty board it should already be 0
         if j == 2:
             if i == 2:
