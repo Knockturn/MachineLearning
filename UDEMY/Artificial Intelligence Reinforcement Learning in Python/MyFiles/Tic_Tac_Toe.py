@@ -117,6 +117,64 @@ class Environment:
                 print("")
         print("-------------")
 
+# recursive function that will return all
+# possible states (as ints) and who the corresponding winner is for those states (if any)
+# (i, j) refers to the next cell on the board to permute (we need to try -1, 0, 1)
+# impossible games are ignored, i.e. 3x's and 3o's in a row simultaneously
+# since that will never happen in a real game
+def get_state_has_and_winner(env, i=0, j=0):
+    results = []
+    
+    for v in (0, env.x, env.0):
+        env.board[i,j] = v # if empty board it should already be 0
+        if j == 2:
+            if i == 2:
+                # j goes back to 0, increase i, unless i = 2, then we are done
+                state = env.get_state()
+                ended = env.game_over(force_recalculate=True)
+                winner = env.winner
+                results.append((state, winner, ended))
+            else:
+                results += get_state_has_and_winner(env, i + 1, 0)
+        else:
+            # increment j, i stays the same
+            results += get_state_has_and_winner(env, i, j + 1)
+            
+    return results
+
+def initialV_x(env, state_winner_triples):
+    # initialize state values as follows
+    # if x wins, V(s) = 1
+    # if x loses or draws, V(s) = 0
+    # otherwise, V(s) = 0.5
+    V = np.zeros(env.num_states)
+    for state, winner, ended in state_winner_triples:
+        if ended:
+            if winner == env.x:
+                v = 1
+            else:
+                v = 0
+        else:
+            v = 0.5
+        v[state] = v
+    return V
+
+def initialV_0(env, state_winner_triples):
+    # this is (almost) the opposite of initial V for player x
+    # since everywhere where x wins (1), 0 loses (0)
+    # but a draw is still 0 for o
+    V = np.zeros(env.num_states)
+    for state, winner, ended in state_winner_triples:
+        if ended:
+            if winner == env.o:
+                v = 1
+            else:
+                v = 0
+        else:
+            v = 0.5
+        V[state] = v
+    return V
+
 def play_game(p1, p2, env, draw=False):
     current_player = None
     while not env.game_over():
