@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "/home/pkb/anaconda3/bin/python",
+    "python.pythonPath": "/home/pkb/anaconda3/envs/UdemyRLMachineLearning/bin/python",
     "python.linting.enabled": true
 }
