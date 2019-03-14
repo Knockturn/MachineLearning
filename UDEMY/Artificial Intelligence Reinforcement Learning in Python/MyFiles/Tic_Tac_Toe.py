@@ -95,14 +95,14 @@ class Environment:
     def is_draw(self):
         return self.ended and self.winner is None
 
-  # Example board
-  # -------------
-  # | x |   |   |
-  # -------------
-  # |   |   |   |
-  # -------------
-  # |   |   | o |
-  # -------------
+    # Example board
+    # -------------
+    # | x |   |   |
+    # -------------
+    # |   |   |   |
+    # -------------
+    # |   |   | o |
+    # -------------
     def draw_board(self):
         for i in range(LENGTH):
             print("-------------")
