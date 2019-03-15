@@ -10,7 +10,7 @@ class Agent:
         self.verbose = False
         self.state_history = []
 
-    def setV(selv, V):
+    def setV(self, V):
         self.V = V
     
     def set_symbol(self, sym):
@@ -42,7 +42,7 @@ class Agent:
                         state = env.get_state()
                         env.board[i,j] = 0 # don't forget to change it back!
                         pos2value[(i,j)] = self.V[state]
-                        if selv.V[state] > best_value:
+                        if self.V[state] > best_value:
                             best_value = self.V[state]
                             best_state = state
                             next_move = (i, j)
@@ -86,7 +86,6 @@ class Agent:
             self.V[prev] = value
             target = value
         self.reset_history()
-
 
 # this class represents a tic-tac-toe game
 # is a CS101-type of project
@@ -202,12 +201,36 @@ class Environment:
                 print("")
         print("-------------")
 
+class Human:
+    def __init__(self):
+        pass
+
+    def set_symbol(self, sym):
+        self.sym = sym
+
+    def take_action(self, env):
+        while True:
+            # break if we make a legal move
+            move = input("Enter coordinates i,j for your next move (i,j=0..2): ")
+            i, j = move.split(',')
+            i = int(i)
+            j = int(j)
+            if env.is_empty(i, j):
+                env.board[i,j] = self.sym
+                break
+
+    def update(self, env):
+        pass
+
+    def update_state_history(self, s):
+        pass
+
 # recursive function that will return all
 # possible states (as ints) and who the corresponding winner is for those states (if any)
 # (i, j) refers to the next cell on the board to permute (we need to try -1, 0, 1)
 # impossible games are ignored, i.e. 3x's and 3o's in a row simultaneously
 # since that will never happen in a real game
-def get_state_has_and_winner(env, i=0, j=0):
+def get_state_hash_and_winner(env, i=0, j=0):
     results = []
     
     for v in (0, env.x, env.o):
@@ -220,10 +243,10 @@ def get_state_has_and_winner(env, i=0, j=0):
                 winner = env.winner
                 results.append((state, winner, ended))
             else:
-                results += get_state_has_and_winner(env, i + 1, 0)
+                results += get_state_hash_and_winner(env, i + 1, 0)
         else:
             # increment j, i stays the same
-            results += get_state_has_and_winner(env, i, j + 1)
+            results += get_state_hash_and_winner(env, i, j + 1)
             
     return results
 
@@ -244,7 +267,7 @@ def initialV_x(env, state_winner_triples):
         v[state] = v
     return V
 
-def initialV_0(env, state_winner_triples):
+def initialV_o(env, state_winner_triples):
     # this is (almost) the opposite of initial V for player x
     # since everywhere where x wins (1), 0 loses (0)
     # but a draw is still 0 for o
@@ -292,4 +315,39 @@ def play_game(p1, p2, env, draw=False):
     p1.update(env)
     p2.update(env)
 
-# more here
+if __name__ == "__main__":
+    # train the agent
+    p1 = Agent()
+    p2 = Agent()
+
+    # set initial V for p1 and p2
+    env = Environment()
+    state_winner_triples = get_state_hash_and_winner(env)
+
+
+    Vx = initialV_x(env, state_winner_triples)
+    p1.setV(Vx)
+    Vo = initialV_o(env, state_winner_triples)
+    p2.setV(Vo)
+
+    # give each player their symbol
+    p1.set_symbol(env.x)
+    p2.set_symbol(env.o)
+
+    T = 10000
+    for t in range(T):
+        if t % 200 == 0:
+            print(t)
+        play_game(p1, p2, Environment())
+
+    human = Human()
+    human.set_symbol(env.o)
+    while True:
+        p1.set_verbose(True)
+        play_game(p1, human, Environment(), draw=2)
+        # I made the agent player 1 because I wanted to see if it would
+        # select the center as its starting move. If you want the agent
+        # to go second you can switch the human and AI.
+        answer = input("Play again? [Y/n]: ")
+        if answer and answer.lower()[0] == 'n':
+            break
