@@ -264,7 +264,7 @@ def initialV_x(env, state_winner_triples):
                 v = 0
         else:
             v = 0.5
-        v[state] = v
+        v[state] = V
     return V
 
 def initialV_o(env, state_winner_triples):
