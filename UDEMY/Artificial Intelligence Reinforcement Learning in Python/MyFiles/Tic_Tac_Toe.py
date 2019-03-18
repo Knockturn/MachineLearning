@@ -2,7 +2,6 @@
 import numpy as np
 
 LENGTH = 3
-
 class Agent:
     def __init__(self, eps=0.1, alpha=0.5):
         self.eps = eps # probability of choosing random action instead of greedy
@@ -29,8 +28,20 @@ class Agent:
         best_state = None
         if r < self.eps:
             # take a random action
-            ...
+            if self.verbose:
+                print("Taking a random action")
+
+            possible_moves = []
+            for i in range(LENGTH):
+                for j in range(LENGTH):
+                    if env.is_empty(i, j):
+                        possible_moves.append((i, j))
+            idx = np.random.choice(len(possible_moves))
+            next_move = possible_moves[idx]
         else:
+        # choose the best action based on current values of states
+        # loop through all possible moves, get their values
+        # keep track of the best value
             pos2value = {} # for debugging
             next_move = None
             best_value = -1
@@ -64,6 +75,9 @@ class Agent:
                             print("   |", end="")
                     print("")
                 print("------------------")
+
+        # make the move
+        env.board[next_move[0], next_move[1]] = self.sym
     
     def update_state_history(self, s):
         # cannot put this in take_action, because take_action only happens
@@ -92,7 +106,7 @@ class Agent:
 class Environment:
     def __init__(self):
         self.board = np.zeros((LENGTH, LENGTH))
-        self.x = 1 # represents an x on the board, player 1
+        self.x = -1 # represents an x on the board, player 1
         self.o = 1 # represents an o on the board, player 2
         self.winner = None
         self.ended = False
@@ -129,7 +143,7 @@ class Environment:
                 k += 1
         return h
 
-    def game_over(self, force_recalculate=False):
+    def game_over(self, force_recalculate=False, times=0):
         # returns true if game is over (a playe rhas won or it's a draw)
         # otherwise returns False
         # also sets 'winner' instance variable and 'ended' instance variable
@@ -141,7 +155,7 @@ class Environment:
             for player in (self.x, self.o):
                 if self.board[i].sum() == player*LENGTH:
                     self.winner = player
-                    self.ended
+                    self.ended = True
                     return True
         
         # check columns
@@ -173,7 +187,7 @@ class Environment:
             return True
 
         # game is not over
-        self.winer = None
+        self.winner = None
         return False
 
     def is_draw(self):
@@ -198,7 +212,7 @@ class Environment:
                     print("o ", end="")
                 else:
                     print("  ", end="")
-                print("")
+            print("")
         print("-------------")
 
 class Human:
@@ -264,7 +278,7 @@ def initialV_x(env, state_winner_triples):
                 v = 0
         else:
             v = 0.5
-        v[state] = V
+        V[state] = v
     return V
 
 def initialV_o(env, state_winner_triples):
